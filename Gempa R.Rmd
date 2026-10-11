@@ -1,0 +1,84 @@
+---
+title: "Project Analisis Eksplorasi Data"
+date: "2024-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(robustbase)
+library(readxl)
+data<-read_xlsx("C:\\Users\\ASUS\\Downloads\\Data Gempa.xlsx")
+data
+```
+
+```{r}
+x <- data$`Kedalaman (Km)`
+summ <- summary(data$`Kedalaman (Km)`)
+IQR <-IQR(data$`Kedalaman (Km)`)
+Q <- quantile(x,prob=c(0.25,0.75))
+Q1 <- Q[["25%"]]
+Q3 <- Q[["75%"]]
+summ
+Q
+```
+
+```{r}
+#medcouple
+library(robustbase)
+mc<-mc(x)
+mc
+```
+```{r}
+frekuensi <- table(x)
+frekuensi
+```
+
+```{r}
+bb <- Q1-1.5*exp(-4*mc)*IQR
+bb
+ba <- Q3+1.5*exp(3*mc)*IQR
+ba
+```
+
+```{r}
+boxplot(x)
+IQR_normal <- IQR(x)
+pagar_bawah <- Q1 - 1.5*IQR_normal
+pagar_bawah
+pagar_atas <- Q3 + 1.5*IQR_normal
+pagar_atas
+title(main="Normal Boxplot")
+```
+
+```{r}
+adjboxStats(x)
+summary(x)
+```
+
+```{r}
+adjbox(x)
+```
+
+```{r}
+library(psych)
+
+describe(data$`Kedalaman (Km)`)
+```
+
+```{r}
+library(ggplot2)
+ggplot(data, aes(x = `Kedalaman (Km)`)) +
+  geom_histogram(aes(y = ..density..), binwidth = 35, fill = "lightyellow", color = "black") +
+  stat_function(fun = dnorm, args = list(mean = mean(data$`Kedalaman (Km)`), sd = sd(data$`Kedalaman (Km)`)), color = "purple") +
+  labs(title = "Histogram dan Densitas Kedalaman Gempa", x = "Kedalaman (Km)", y = "Density")+
+  theme_bw()
+```
+
+```{r}
+shapiro.test(data$`Kedalaman (Km)`)
+```
